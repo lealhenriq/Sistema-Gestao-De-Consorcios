@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head('Cadastro de Cota - Sistema de Consórcio')"></head>
+<body>
+    <header th:replace="layout :: header"></header>
+    
+    <div class="container py-4">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/dashboard}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/cotas}">Cotas</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Cadastro</li>
+            </ol>
+        </nav>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Cadastrar Nova Cota</h5>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/cotas/cadastro}" th:object="${cota}" method="post">
+                            <div class="mb-3">
+                                <label for="grupo" class="form-label">Grupo</label>
+                                <select id="grupo" th:field="*{grupo}" class="form-select" required>
+                                    <option value="">Selecione um grupo</option>
+                                    <option th:each="g : ${grupos}" 
+                                            th:value="${g.id}" 
+                                            th:text="${g.nome + ' - ' + #numbers.formatCurrency(g.valorBem)}"
+                                            th:selected="${g.id == param.grupoId}">
+                                        Grupo Premium - R$ 60.000,00
+                                    </option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('grupo')}" th:errors="*{grupo}">
+                                    Grupo inválido
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="numero" class="form-label">Número da Cota</label>
+                                <input type="text" class="form-control" id="numero" th:field="*{numero}" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('numero')}" th:errors="*{numero}">
+                                    Número inválido
+                                </div>
+                                <small class="form-text text-muted">
+                                    Digite um número único para esta cota dentro do grupo.
+                                </small>
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="venderAgora" name="venderAgora">
+                                <label class="form-check-label" for="venderAgora">Vender cota imediatamente</label>
+                            </div>
+                            
+                            <div id="dadosVenda" style="display: none;">
+                                <div class="mb-3">
+                                    <label for="cliente" class="form-label">Cliente</label>
+                                    <select id="cliente" name="clienteId" class="form-select">
+                                        <option value="">Selecione um cliente</option>
+                                        <option th:each="c : ${clientes}" 
+                                                th:value="${c.id}" 
+                                                th:text="${c.nome + ' - ' + c.cpf}">
+                                            João Silva - 123.456.789-00
+                                        </option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="dataAdesao" class="form-label">Data de Adesão</label>
+                                    <input type="date" class="form-control" id="dataAdesao" name="dataAdesao">
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save"></i> Salvar
+                                </button>
+                                <a th:href="@{/cotas}" class="btn btn-secondary">
+                                    <i class="bi bi-x-circle"></i> Cancelar
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer th:replace="layout :: footer"></footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const venderAgoraCheckbox = document.getElementById('venderAgora');
+            const dadosVendaDiv = document.getElementById('dadosVenda');
+            const clienteSelect = document.getElementById('cliente');
+            const dataAdesaoInput = document.getElementById('dataAdesao');
+            
+            venderAgoraCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    dadosVendaDiv.style.display = 'block';
+                    clienteSelect.required = true;
+                    dataAdesaoInput.required = true;
+                    
+                    // Set default date to today
+                    const today = new Date();
+                    const formattedDate = today.toISOString().substr(0, 10);
+                    dataAdesaoInput.value = formattedDate;
+                } else {
+                    dadosVendaDiv.style.display = 'none';
+                    clienteSelect.required = false;
+                    dataAdesaoInput.required = false;
+                }
+            });
+            
+            // Check if grupoId was provided in the URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const grupoId = urlParams.get('grupoId');
+            if (grupoId) {
+                // Pre-select the grupo if grupoId is provided
+                const grupoSelect = document.getElementById('grupo');
+                for (let i = 0; i < grupoSelect.options.length; i++) {
+                    if (grupoSelect.options[i].value === grupoId) {
+                        grupoSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html> 

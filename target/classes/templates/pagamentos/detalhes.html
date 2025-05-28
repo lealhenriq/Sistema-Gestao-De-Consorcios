@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head('Detalhes do Pagamento - Sistema de Consórcio')"></head>
+<body>
+    <header th:replace="layout :: header"></header>
+    
+    <div class="container py-4">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/dashboard}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/pagamentos}">Pagamentos</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Detalhes</li>
+            </ol>
+        </nav>
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Detalhes do Pagamento</h1>
+            <div>
+                <div class="btn-group" role="group">
+                    <a th:if="${pagamento.status.name() != 'PAGO'}" 
+                       th:href="@{/pagamentos/{id}/registrar(id=${pagamento.id})}" 
+                       class="btn btn-success">
+                        <i class="bi bi-check-circle"></i> Registrar Pagamento
+                    </a>
+                    <a th:if="${pagamento.status.name() != 'CANCELADO'}" 
+                       th:href="@{/pagamentos/{id}/cancelar(id=${pagamento.id})}" 
+                       class="btn btn-danger"
+                       onclick="return confirm('Tem certeza que deseja cancelar este pagamento?')">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </a>
+                    <a th:href="@{/pagamentos}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Voltar
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Informações do Pagamento</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3 row">
+                            <label class="col-sm-4 col-form-label fw-bold">ID:</label>
+                            <div class="col-sm-8">
+                                <p class="form-control-plaintext" th:text="${pagamento.id}">1</p>
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label class="col-sm-4 col-form-label fw-bold">Mês de Referência:</label>
+                            <div class="col-sm-8">
+                                <p class="form-control-plaintext" th:text="${pagamento.mesReferencia}">01/2024</p>
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label class="col-sm-4 col-form-label fw-bold">Valor:</label>
+                            <div class="col-sm-8">
+                                <p class="form-control-plaintext" th:text="${#numbers.formatCurrency(pagamento.valor)}">R$ 500,00</p>
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label class="col-sm-4 col-form-label fw-bold">Data de Vencimento:</label>
+                            <div class="col-sm-8">
+                                <p class="form-control-plaintext" th:text="${#temporals.format(pagamento.dataVencimento, 'dd/MM/yyyy')}">10/01/2024</p>
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label class="col-sm-4 col-form-label fw-bold">Data de Pagamento:</label>
+                            <div class="col-sm-8">
+                                <p class="form-control-plaintext" th:text="${pagamento.dataPagamento != null ? #temporals.format(pagamento.dataPagamento, 'dd/MM/yyyy') : 'Não pago'}">15/01/2024</p>
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label class="col-sm-4 col-form-label fw-bold">Status:</label>
+                            <div class="col-sm-8">
+                                <p class="form-control-plaintext">
+                                    <span th:if="${pagamento.status.name() == 'PAGO'}" class="badge bg-success">PAGO</span>
+                                    <span th:if="${pagamento.status.name() == 'PENDENTE'}" class="badge bg-warning text-dark">PENDENTE</span>
+                                    <span th:if="${pagamento.status.name() == 'ATRASADO'}" class="badge bg-danger">ATRASADO</span>
+                                    <span th:if="${pagamento.status.name() == 'CANCELADO'}" class="badge bg-secondary">CANCELADO</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mb-3 row" th:if="${pagamento.observacao != null && !pagamento.observacao.isEmpty()}">
+                            <label class="col-sm-4 col-form-label fw-bold">Observação:</label>
+                            <div class="col-sm-8">
+                                <p class="form-control-plaintext" th:text="${pagamento.observacao}">Observação do pagamento</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">Informações da Cota e Cliente</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3 row">
+                            <label class="col-sm-4 col-form-label fw-bold">Cliente:</label>
+                            <div class="col-sm-8">
+                                <p class="form-control-plaintext" th:text="${pagamento.cota.cliente.nome}">Nome do Cliente</p>
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label class="col-sm-4 col-form-label fw-bold">Grupo:</label>
+                            <div class="col-sm-8">
+                                <p class="form-control-plaintext" th:text="${pagamento.cota.grupo.nome}">Nome do Grupo</p>
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label class="col-sm-4 col-form-label fw-bold">Número da Cota:</label>
+                            <div class="col-sm-8">
+                                <p class="form-control-plaintext" th:text="${pagamento.cota.numero}">123</p>
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label class="col-sm-4 col-form-label fw-bold">Valor do Bem:</label>
+                            <div class="col-sm-8">
+                                <p class="form-control-plaintext" th:text="${#numbers.formatCurrency(pagamento.cota.grupo.valorBem)}">R$ 50.000,00</p>
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label class="col-sm-4 col-form-label fw-bold">Total de Parcelas:</label>
+                            <div class="col-sm-8">
+                                <p class="form-control-plaintext" th:text="${pagamento.cota.grupo.totalParcelas}">60</p>
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label class="col-sm-4 col-form-label fw-bold">Contemplada:</label>
+                            <div class="col-sm-8">
+                                <p class="form-control-plaintext">
+                                    <span th:if="${pagamento.cota.contemplada}" class="badge bg-success">Sim</span>
+                                    <span th:unless="${pagamento.cota.contemplada}" class="badge bg-secondary">Não</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label class="col-sm-4 col-form-label fw-bold">Links:</label>
+                            <div class="col-sm-8">
+                                <a th:href="@{/clientes/{id}/detalhes(id=${pagamento.cota.cliente.id})}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-person"></i> Ver Cliente
+                                </a>
+                                <a th:href="@{/cotas/{id}/detalhes(id=${pagamento.cota.id})}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-credit-card"></i> Ver Cota
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Histórico do Pagamento</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3 row">
+                    <label class="col-sm-3 col-form-label fw-bold">Data de Cadastro:</label>
+                    <div class="col-sm-9">
+                        <p class="form-control-plaintext" th:text="${#temporals.format(pagamento.dataCadastro, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</p>
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <label class="col-sm-3 col-form-label fw-bold">Última Atualização:</label>
+                    <div class="col-sm-9">
+                        <p class="form-control-plaintext" th:text="${#temporals.format(pagamento.dataAtualizacao, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer th:replace="layout :: footer"></footer>
+</body>
+</html> 

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head('Filtrar Sorteios por Período - Sistema de Consórcio')"></head>
+<body>
+    <header th:replace="layout :: header"></header>
+    
+    <div class="container py-4">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/dashboard}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/sorteios}">Sorteios</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Filtrar por Período</li>
+            </ol>
+        </nav>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Filtrar Sorteios por Período</h5>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/sorteios/filtrar-periodo}" method="get">
+                            <div class="mb-3">
+                                <label for="dataInicio" class="form-label">Data Inicial</label>
+                                <input type="date" class="form-control" id="dataInicio" name="dataInicio" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="dataFim" class="form-label">Data Final</label>
+                                <input type="date" class="form-control" id="dataFim" name="dataFim" required>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-search"></i> Filtrar
+                                </button>
+                                <a th:href="@{/sorteios}" class="btn btn-secondary">
+                                    <i class="bi bi-x-circle"></i> Cancelar
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer th:replace="layout :: footer"></footer>
+</body>
+</html> 

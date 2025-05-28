@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(title)">
+    <title th:text="${title}">Sistema de Consórcio</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --primary-dark: #0b5ed7;
+            --secondary-color: #6c757d;
+            --light-color: #f8f9fa;
+            --success-color: #198754;
+            --info-color: #0dcaf0;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        
+        .navbar.bg-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar .nav-link {
+            padding: 0.8rem 1rem;
+            font-weight: 500;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+        
+        .navbar .dropdown-menu {
+            border: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        
+        .dropdown-item {
+            padding: 0.5rem 1.5rem;
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+        
+        .dropdown-item i {
+            margin-right: 8px;
+            color: var(--primary-color);
+        }
+        
+        .card {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .card-header {
+            font-weight: 600;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 1rem 1.25rem;
+        }
+        
+        .badge {
+            padding: 0.5em 0.8em;
+            font-weight: 500;
+        }
+        
+        .btn {
+            border-radius: 5px;
+            font-weight: 500;
+        }
+        
+        footer {
+            margin-top: 2rem;
+            padding: 1.5rem 0;
+        }
+    </style>
+</head>
+
+<body>
+    <header th:fragment="header">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container-fluid">
+                <a class="navbar-brand" th:href="@{/dashboard}">
+                    <i class="bi bi-car-front-fill me-2"></i>Sistema de Consórcio
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/dashboard}">
+                                <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/clientes}">
+                                <i class="bi bi-people me-1"></i> Clientes
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/grupos}">
+                                <i class="bi bi-collection me-1"></i> Grupos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/cotas}">
+                                <i class="bi bi-credit-card me-1"></i> Cotas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/pagamentos}">
+                                <i class="bi bi-cash me-1"></i> Pagamentos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/sorteios}">
+                                <i class="bi bi-trophy me-1"></i> Sorteios
+                            </a>
+                        </li>
+                        <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'OPERADOR')">
+                            <a class="nav-link" th:href="@{/relatorios}">
+                                <i class="bi bi-file-earmark-bar-graph me-1"></i> Relatórios
+                            </a>
+                        </li>
+                        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                            <a class="nav-link" th:href="@{/usuarios}">
+                                <i class="bi bi-person-gear me-1"></i> Usuários
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" 
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle me-1"></i> 
+                                <span sec:authentication="name">Usuário</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li>
+                                    <a class="dropdown-item" th:href="@{/perfil}">
+                                        <i class="bi bi-person"></i> Perfil
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" th:href="@{/logout}">
+                                        <i class="bi bi-box-arrow-right"></i> Sair
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        
+        <div class="container mt-3" th:if="${mensagemSucesso != null}">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <span th:text="${mensagemSucesso}">Mensagem de sucesso</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+        
+        <div class="container mt-3" th:if="${mensagemErro != null}">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span th:text="${mensagemErro}">Mensagem de erro</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    </header>
+
+    <footer th:fragment="footer">
+        <div class="container">
+            <hr>
+            <p class="text-center text-muted">&copy; 2024 Sistema de Gestão de Consórcio de Veículos</p>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js"></script>
+        <script th:inline="javascript">
+            // Fix currency symbol for Brazilian Real
+            document.addEventListener('DOMContentLoaded', function() {
+                // Find all elements containing price formatting
+                const priceElements = document.querySelectorAll('*:not(script):not(style)');
+                priceElements.forEach(function(element) {
+                    if (element.childNodes && element.childNodes.length > 0) {
+                        element.childNodes.forEach(function(node) {
+                            if (node.nodeType === 3) { // Text node
+                                const text = node.nodeValue;
+                                if (text && text.includes('£')) {
+                                    node.nodeValue = text.replace(/£/g, 'R$');
+                                }
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+    </footer>
+</body>
+</html> 

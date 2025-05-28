@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head(${sorteio.id != null ? 'Editar Sorteio' : 'Novo Sorteio'} + ' - Sistema de Consórcio')"></head>
+<body>
+    <header th:replace="layout :: header"></header>
+    
+    <div class="container py-4">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/dashboard}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/sorteios}">Sorteios</a></li>
+                <li class="breadcrumb-item active" aria-current="page" th:text="${sorteio.id != null ? 'Editar' : 'Novo'}">Cadastro</li>
+            </ol>
+        </nav>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0" th:text="${sorteio.id != null ? 'Editar Sorteio' : 'Novo Sorteio'}">Cadastro de Sorteio</h5>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{${sorteio.id != null ? '/sorteios/' + sorteio.id + '/editar' : '/sorteios/cadastro'}}" 
+                              th:object="${sorteio}" method="post">
+                            <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+                            <input type="hidden" th:field="*{id}" th:if="${sorteio.id != null}">
+                            
+                            <div class="mb-3">
+                                <label for="grupo" class="form-label">Grupo</label>
+                                <select id="grupo" th:field="*{grupo}" class="form-select" required 
+                                        th:disabled="${sorteio.id != null && sorteio.cotaContemplada != null && sorteio.realizado == true}">
+                                    <option value="">Selecione um grupo</option>
+                                    <option th:each="g : ${grupos}" 
+                                            th:value="${g.id}" 
+                                            th:text="${g.nome}"
+                                            th:selected="${g.id == (sorteio.grupo != null ? sorteio.grupo.id : '')}">
+                                        Nome do Grupo
+                                    </option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('grupo')}" th:errors="*{grupo}">
+                                    Erro no grupo
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="mesAno" class="form-label">Mês/Ano de Referência</label>
+                                <input type="text" class="form-control" id="mesAno" th:field="*{mesAno}" 
+                                       placeholder="MM/AAAA" pattern="\d{2}/\d{4}" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('mesAno')}" th:errors="*{mesAno}">
+                                    Erro no mês/ano
+                                </div>
+                                <small class="form-text text-muted">Formato: MM/AAAA (ex: 05/2024)</small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="dataSorteio" class="form-label">Data do Sorteio</label>
+                                <input type="date" class="form-control" id="dataSorteio" name="dataSorteio" 
+                                       th:value="${sorteio.dataSorteio != null ? #temporals.format(sorteio.dataSorteio, 'yyyy-MM-dd') : ''}" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('dataSorteio')}" th:errors="*{dataSorteio}">
+                                    Erro na data do sorteio
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3" th:if="${sorteio.id != null && !sorteio.realizado}">
+                                <label for="cotaContemplada" class="form-label">Cota Contemplada</label>
+                                <select id="cotaContemplada" th:field="*{cotaContemplada}" class="form-select">
+                                    <option value="">Selecione uma cota</option>
+                                    <option th:each="cota : ${cotas}" 
+                                            th:value="${cota.id}" 
+                                            th:text="${'Cota ' + cota.numero + ' - ' + (cota.cliente != null ? cota.cliente.nome : 'Sem cliente')}"
+                                            th:selected="${cota.id == (sorteio.cotaContemplada != null ? sorteio.cotaContemplada.id : '')}">
+                                        Cota 001 - João Silva
+                                    </option>
+                                </select>
+                                <small class="form-text text-muted">Deixe em branco para realizar o sorteio automaticamente.</small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="observacao" class="form-label">Observações</label>
+                                <textarea class="form-control" id="observacao" th:field="*{observacao}" rows="3"></textarea>
+                            </div>
+                            
+                            <div class="form-check mb-3" th:if="${sorteio.id != null}">
+                                <input class="form-check-input" type="checkbox" id="realizado" th:field="*{realizado}">
+                                <label class="form-check-label" for="realizado">
+                                    Sorteio Realizado
+                                </label>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save"></i> Salvar
+                                </button>
+                                <a th:href="@{/sorteios}" class="btn btn-secondary">
+                                    <i class="bi bi-x-circle"></i> Cancelar
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer th:replace="layout :: footer"></footer>
+</body>
+</html> 

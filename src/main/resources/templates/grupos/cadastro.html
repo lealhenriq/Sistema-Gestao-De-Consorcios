@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head('Cadastro de Grupo - Sistema de Consórcio')"></head>
+<body>
+    <header th:replace="layout :: header"></header>
+    
+    <div class="container py-4">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/dashboard}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/grupos}">Grupos</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Cadastro</li>
+            </ol>
+        </nav>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Cadastrar Novo Grupo</h5>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/grupos/cadastro}" th:object="${grupo}" method="post">
+                            <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+                            
+                            <div class="mb-3">
+                                <label for="nome" class="form-label">Nome do Grupo</label>
+                                <input type="text" class="form-control" id="nome" th:field="*{nome}" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}">
+                                    Nome inválido
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="valorBem" class="form-label">Valor do Bem (R$)</label>
+                                <input type="number" class="form-control" id="valorBem" th:field="*{valorBem}" step="0.01" min="1000" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('valorBem')}" th:errors="*{valorBem}">
+                                    Valor inválido
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="prazoMeses" class="form-label">Prazo (meses)</label>
+                                <select id="prazoMeses" th:field="*{prazoMeses}" class="form-select" required>
+                                    <option value="">Selecione um prazo</option>
+                                    <option value="12">12 meses</option>
+                                    <option value="24">24 meses</option>
+                                    <option value="36">36 meses</option>
+                                    <option value="48">48 meses</option>
+                                    <option value="60">60 meses</option>
+                                    <option value="72">72 meses</option>
+                                    <option value="84">84 meses</option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('prazoMeses')}" th:errors="*{prazoMeses}">
+                                    Prazo inválido
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="numeroCotas" class="form-label">Número de Cotas</label>
+                                <input type="number" class="form-control" id="numeroCotas" th:field="*{numeroCotas}" min="5" max="500" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('numeroCotas')}" th:errors="*{numeroCotas}">
+                                    Número de cotas inválido
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="gerarCotas" name="gerarCotas" checked>
+                                <label class="form-check-label" for="gerarCotas">Gerar cotas automaticamente</label>
+                                <small class="form-text text-muted d-block mt-1">
+                                    Marque esta opção para gerar automaticamente todas as cotas deste grupo.
+                                </small>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save"></i> Salvar
+                                </button>
+                                <a th:href="@{/grupos}" class="btn btn-secondary">
+                                    <i class="bi bi-x-circle"></i> Cancelar
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer th:replace="layout :: footer"></footer>
+</body>
+</html> 

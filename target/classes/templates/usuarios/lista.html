@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="layout :: head('Usuários - Sistema de Consórcio')"></head>
+<body>
+    <header th:replace="layout :: header"></header>
+    
+    <div class="container py-4">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/dashboard}">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Usuários</li>
+            </ol>
+        </nav>
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0">Usuários</h2>
+            <div>
+                <a th:href="@{/usuarios/cadastro}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Novo Usuário
+                </a>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Filtros</h5>
+            </div>
+            <div class="card-body">
+                <form th:action="@{/usuarios}" method="get" class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="nome" class="form-label">Nome</label>
+                        <input type="text" id="nome" name="nome" class="form-control" 
+                               th:value="${param.nome != null ? param.nome[0] : ''}" 
+                               placeholder="Nome do usuário">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="text" id="email" name="email" class="form-control" 
+                               th:value="${param.email != null ? param.email[0] : ''}" 
+                               placeholder="Email do usuário">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="ativo" class="form-label">Status</label>
+                        <select id="ativo" name="ativo" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="true" th:selected="${param.ativo != null && param.ativo[0] == 'true'}">Ativo</option>
+                            <option value="false" th:selected="${param.ativo != null && param.ativo[0] == 'false'}">Inativo</option>
+                        </select>
+                    </div>
+                    <div class="col-12 text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i> Filtrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Lista de Usuários</h5>
+            </div>
+            
+            <div class="card-body p-0">
+                <div th:if="${usuarios.empty}" class="p-4 text-center">
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle"></i> Nenhum usuário encontrado
+                    </div>
+                </div>
+                
+                <div class="table-responsive" th:unless="${usuarios.empty}">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Email</th>
+                                <th>Perfil</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="usuario : ${usuarios}">
+                                <td th:text="${usuario.id}">1</td>
+                                <td th:text="${usuario.nome}">Nome do Usuário</td>
+                                <td th:text="${usuario.email}">email@exemplo.com</td>
+                                <td>
+                                    <span th:if="${usuario.role.name() == 'ADMIN'}" class="badge bg-danger">Administrador</span>
+                                    <span th:if="${usuario.role.name() == 'OPERADOR'}" class="badge bg-info">Operador</span>
+                                    <span th:if="${usuario.role.name() == 'USUARIO'}" class="badge bg-primary">Usuário</span>
+                                </td>
+                                <td>
+                                    <span th:if="${usuario.ativo}" class="badge bg-success">Ativo</span>
+                                    <span th:unless="${usuario.ativo}" class="badge bg-secondary">Inativo</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a th:href="@{/usuarios/{id}/editar(id=${usuario.id})}" class="btn btn-sm btn-success" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <button th:if="${usuario.ativo && !#authentication.principal.username.equals(usuario.email)}" 
+                                                class="btn btn-sm btn-danger" title="Desativar"
+                                                th:attr="onclick=|confirmarDesativacao('${usuario.id}', '${usuario.nome}')|">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                        <button th:if="${!usuario.ativo}" 
+                                                class="btn btn-sm btn-primary" title="Ativar"
+                                                th:attr="onclick=|confirmarAtivacao('${usuario.id}', '${usuario.nome}')|">
+                                            <i class="bi bi-check-circle"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <nav th:if="${usuarios.totalPages > 1}" aria-label="Paginação" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${usuarios.first ? 'disabled' : ''}">
+                    <a class="page-link" th:href="@{/usuarios(page=0, size=${usuarios.size}, nome=${param.nome}, email=${param.email}, ativo=${param.ativo})}" aria-label="Primeira">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item" th:classappend="${usuarios.first ? 'disabled' : ''}">
+                    <a class="page-link" th:href="@{/usuarios(page=${usuarios.number - 1}, size=${usuarios.size}, nome=${param.nome}, email=${param.email}, ativo=${param.ativo})}" aria-label="Anterior">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item" th:each="i : ${#numbers.sequence(0, usuarios.totalPages - 1)}" 
+                    th:classappend="${usuarios.number == i ? 'active' : ''}">
+                    <a class="page-link" th:href="@{/usuarios(page=${i}, size=${usuarios.size}, nome=${param.nome}, email=${param.email}, ativo=${param.ativo})}" th:text="${i + 1}">1</a>
+                </li>
+                <li class="page-item" th:classappend="${usuarios.last ? 'disabled' : ''}">
+                    <a class="page-link" th:href="@{/usuarios(page=${usuarios.number + 1}, size=${usuarios.size}, nome=${param.nome}, email=${param.email}, ativo=${param.ativo})}" aria-label="Próxima">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item" th:classappend="${usuarios.last ? 'disabled' : ''}">
+                    <a class="page-link" th:href="@{/usuarios(page=${usuarios.totalPages - 1}, size=${usuarios.size}, nome=${param.nome}, email=${param.email}, ativo=${param.ativo})}" aria-label="Última">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    
+    <!-- Modal de Confirmação de Desativação -->
+    <div class="modal fade" id="desativarUsuarioModal" tabindex="-1" aria-labelledby="desativarUsuarioModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="desativarUsuarioModalLabel">Confirmar Desativação</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Tem certeza que deseja desativar o usuário <span id="usuarioDesativarNome"></span>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <form id="formDesativar" th:action="@{/usuarios/desativar}" method="post">
+                        <input type="hidden" id="usuarioDesativarId" name="id">
+                        <button type="submit" class="btn btn-danger">Desativar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Confirmação de Ativação -->
+    <div class="modal fade" id="ativarUsuarioModal" tabindex="-1" aria-labelledby="ativarUsuarioModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ativarUsuarioModalLabel">Confirmar Ativação</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Tem certeza que deseja ativar o usuário <span id="usuarioAtivarNome"></span>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <form id="formAtivar" th:action="@{/usuarios/ativar}" method="post">
+                        <input type="hidden" id="usuarioAtivarId" name="id">
+                        <button type="submit" class="btn btn-success">Ativar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer th:replace="layout :: footer"></footer>
+    
+    <script>
+        function confirmarDesativacao(id, nome) {
+            document.getElementById('usuarioDesativarId').value = id;
+            document.getElementById('usuarioDesativarNome').textContent = nome;
+            new bootstrap.Modal(document.getElementById('desativarUsuarioModal')).show();
+        }
+        
+        function confirmarAtivacao(id, nome) {
+            document.getElementById('usuarioAtivarId').value = id;
+            document.getElementById('usuarioAtivarNome').textContent = nome;
+            new bootstrap.Modal(document.getElementById('ativarUsuarioModal')).show();
+        }
+    </script>
+</body>
+</html> 

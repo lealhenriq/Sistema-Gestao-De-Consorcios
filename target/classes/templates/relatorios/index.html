@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="layout :: head('Relatórios - Sistema de Consórcio')"></head>
+<body>
+    <header th:replace="layout :: header"></header>
+    
+    <div class="container py-4">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/dashboard}">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Relatórios</li>
+            </ol>
+        </nav>
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0">Relatórios</h2>
+        </div>
+        
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-4">
+            <!-- Relatório Financeiro -->
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-box rounded bg-primary bg-opacity-10 p-3 me-3">
+                                <i class="bi bi-cash-stack text-primary fs-4"></i>
+                            </div>
+                            <h5 class="card-title mb-0">Relatório Financeiro</h5>
+                        </div>
+                        <p class="card-text text-secondary">Análise detalhada de pagamentos, taxas de adimplência e histórico de recebimentos por períodos.</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 pb-3 pt-0">
+                        <a th:href="@{/relatorios/financeiro}" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-bar-chart-line"></i> Visualizar
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Relatório de Grupos -->
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-box rounded bg-success bg-opacity-10 p-3 me-3">
+                                <i class="bi bi-collection text-success fs-4"></i>
+                            </div>
+                            <h5 class="card-title mb-0">Relatório de Grupos</h5>
+                        </div>
+                        <p class="card-text text-secondary">Visão geral dos grupos de consórcio, taxa de contemplação e distribuição de cotas por grupo.</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 pb-3 pt-0">
+                        <a th:href="@{/relatorios/grupos}" class="btn btn-outline-success w-100">
+                            <i class="bi bi-pie-chart"></i> Visualizar
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Relatório de Clientes -->
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-box rounded bg-info bg-opacity-10 p-3 me-3">
+                                <i class="bi bi-people text-info fs-4"></i>
+                            </div>
+                            <h5 class="card-title mb-0">Relatório de Clientes</h5>
+                        </div>
+                        <p class="card-text text-secondary">Análise da carteira de clientes, cotas por cliente e histórico de contemplações.</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 pb-3 pt-0">
+                        <a th:href="@{/relatorios/clientes}" class="btn btn-outline-info w-100">
+                            <i class="bi bi-list-ul"></i> Visualizar
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Relatório de Sorteios -->
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-box rounded bg-warning bg-opacity-10 p-3 me-3">
+                                <i class="bi bi-trophy text-warning fs-4"></i>
+                            </div>
+                            <h5 class="card-title mb-0">Relatório de Sorteios</h5>
+                        </div>
+                        <p class="card-text text-secondary">Histórico de sorteios realizados, distribuição de contemplações por grupo e análise temporal.</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 pb-3 pt-0">
+                        <a th:href="@{/relatorios/sorteios}" class="btn btn-outline-warning w-100">
+                            <i class="bi bi-calendar-date"></i> Visualizar
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Relatório de Cotas -->
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-box rounded bg-danger bg-opacity-10 p-3 me-3">
+                                <i class="bi bi-credit-card text-danger fs-4"></i>
+                            </div>
+                            <h5 class="card-title mb-0">Relatório de Cotas</h5>
+                        </div>
+                        <p class="card-text text-secondary">Distribuição de cotas por status, percentual de contemplação e análise geral das cotas.</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 pb-3 pt-0">
+                        <a th:href="@{/relatorios/cotas}" class="btn btn-outline-danger w-100">
+                            <i class="bi bi-grid"></i> Visualizar
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Exportação de Dados -->
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-box rounded bg-secondary bg-opacity-10 p-3 me-3">
+                                <i class="bi bi-file-earmark-arrow-down text-secondary fs-4"></i>
+                            </div>
+                            <h5 class="card-title mb-0">Exportação de Dados</h5>
+                        </div>
+                        <p class="card-text text-secondary">Exporte relatórios e dados em diferentes formatos (PDF, CSV, Excel) para análise externa.</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 pb-3 pt-0">
+                        <a th:href="@{#}" class="btn btn-outline-secondary w-100" disabled>
+                            <i class="bi bi-download"></i> Em breve
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer th:replace="layout :: footer"></footer>
+</body>
+</html> 

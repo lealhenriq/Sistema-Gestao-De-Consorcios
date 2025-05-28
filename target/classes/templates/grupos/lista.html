@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head('Grupos - Sistema de Consórcio')"></head>
+<body>
+    <header th:replace="layout :: header"></header>
+    
+    <div class="container py-4">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/dashboard}">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Grupos</li>
+            </ol>
+        </nav>
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0">Grupos de Consórcio</h2>
+            <div>
+                <a th:href="@{/grupos/cadastro}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Novo Grupo
+                </a>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Filtros</h5>
+            </div>
+            <div class="card-body">
+                <form th:action="@{/grupos}" method="get" class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="nome" class="form-label">Nome do Grupo</label>
+                        <input type="text" id="nome" name="nome" class="form-control" 
+                               th:value="${param.nome != null ? param.nome[0] : ''}" 
+                               placeholder="Nome do grupo">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select id="status" name="status" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="FORMACAO" th:selected="${param.status != null && param.status[0] == 'FORMACAO'}">Em Formação</option>
+                            <option value="ATIVO" th:selected="${param.status != null && param.status[0] == 'ATIVO'}">Ativo</option>
+                            <option value="ENCERRADO" th:selected="${param.status != null && param.status[0] == 'ENCERRADO'}">Encerrado</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="dataInicio" class="form-label">Data Início</label>
+                        <input type="date" id="dataInicio" name="dataInicio" class="form-control" 
+                               th:value="${param.dataInicio != null ? param.dataInicio[0] : ''}" 
+                               placeholder="Data de início">
+                    </div>
+                    <div class="col-12 text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i> Filtrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Lista de Grupos</h5>
+            </div>
+            
+            <div class="card-body p-0">
+                <div th:if="${grupos.empty}" class="p-4 text-center">
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle"></i> Nenhum grupo encontrado
+                    </div>
+                </div>
+                
+                <div class="table-responsive" th:unless="${grupos.empty}">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Tipo</th>
+                                <th>Valor do Bem</th>
+                                <th>Prazo (meses)</th>
+                                <th>Número de Cotas</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="grupo : ${grupos}">
+                                <td>
+                                    <a th:href="@{/grupos/{id}/detalhes(id=${grupo.id})}" th:text="${grupo.id}">1</a>
+                                </td>
+                                <td>
+                                    <a th:href="@{/grupos/{id}/detalhes(id=${grupo.id})}" th:text="${grupo.nome}">Grupo Premium</a>
+                                </td>
+                                <td>
+                                    <!-- Categoria não existe no modelo, deixamos um placeholder fixo -->
+                                    <span class="badge bg-primary">Diversos</span>
+                                </td>
+                                <td th:text="${#numbers.formatCurrency(grupo.valorBem)}">R$ 60.000,00</td>
+                                <td th:text="${grupo.prazoMeses + ' meses'}">60 meses</td>
+                                <td th:text="${grupo.numeroCotas}">50</td>
+                                <td>
+                                    <span th:if="${grupo.status.name() == 'FORMACAO'}" class="badge bg-warning text-dark">Em Formação</span>
+                                    <span th:if="${grupo.status.name() == 'ATIVO'}" class="badge bg-success">Ativo</span>
+                                    <span th:if="${grupo.status.name() == 'ENCERRADO'}" class="badge bg-secondary">Encerrado</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a th:href="@{/grupos/{id}/detalhes(id=${grupo.id})}" class="btn btn-sm btn-info" title="Ver Detalhes">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a th:if="${grupo.status.name() == 'FORMACAO'}" 
+                                           th:href="@{/grupos/{id}/editar(id=${grupo.id})}" 
+                                           class="btn btn-sm btn-primary" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a th:if="${grupo.status.name() == 'FORMACAO'}" 
+                                           th:href="@{/grupos/{id}/ativar(id=${grupo.id})}" 
+                                           class="btn btn-sm btn-success" title="Ativar"
+                                           onclick="return confirm('Tem certeza que deseja ativar este grupo?')">
+                                            <i class="bi bi-check-circle"></i>
+                                        </a>
+                                        <a th:if="${grupo.status.name() == 'ATIVO'}" 
+                                           th:href="@{/grupos/{id}/encerrar(id=${grupo.id})}" 
+                                           class="btn btn-sm btn-danger" title="Encerrar"
+                                           onclick="return confirm('Tem certeza que deseja encerrar este grupo?')">
+                                            <i class="bi bi-x-circle"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Only display pagination if the 'grupos' is a Page object with pagination properties -->
+        <nav th:if="${grupos instanceof T(org.springframework.data.domain.Page) && grupos.totalPages > 1}" aria-label="Paginação" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${grupos.first ? 'disabled' : ''}">
+                    <a class="page-link" th:href="@{/grupos(page=0, size=${grupos.size}, nome=${param.nome}, status=${param.status}, dataInicio=${param.dataInicio})}" aria-label="Primeira">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item" th:classappend="${grupos.first ? 'disabled' : ''}">
+                    <a class="page-link" th:href="@{/grupos(page=${grupos.number - 1}, size=${grupos.size}, nome=${param.nome}, status=${param.status}, dataInicio=${param.dataInicio})}" aria-label="Anterior">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item" th:each="i : ${#numbers.sequence(0, grupos.totalPages - 1)}" 
+                    th:classappend="${grupos.number == i ? 'active' : ''}">
+                    <a class="page-link" th:href="@{/grupos(page=${i}, size=${grupos.size}, nome=${param.nome}, status=${param.status}, dataInicio=${param.dataInicio})}" th:text="${i + 1}">1</a>
+                </li>
+                <li class="page-item" th:classappend="${grupos.last ? 'disabled' : ''}">
+                    <a class="page-link" th:href="@{/grupos(page=${grupos.number + 1}, size=${grupos.size}, nome=${param.nome}, status=${param.status}, dataInicio=${param.dataInicio})}" aria-label="Próxima">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item" th:classappend="${grupos.last ? 'disabled' : ''}">
+                    <a class="page-link" th:href="@{/grupos(page=${grupos.totalPages - 1}, size=${grupos.size}, nome=${param.nome}, status=${param.status}, dataInicio=${param.dataInicio})}" aria-label="Última">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    
+    <footer th:replace="layout :: footer"></footer>
+</body>
+</html> 

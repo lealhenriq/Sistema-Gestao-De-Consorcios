@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head('Pagamentos - Sistema de Consórcio')"></head>
+<body>
+    <header th:replace="layout :: header"></header>
+    
+    <div class="container py-4">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/dashboard}">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Pagamentos</li>
+            </ol>
+        </nav>
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0">
+                <span th:if="${cota}" th:text="'Pagamentos da Cota ' + ${cota.numero}">Pagamentos da Cota 123</span>
+                <span th:unless="${cota}">Pagamentos</span>
+            </h2>
+            
+            <div>
+                <a th:href="@{/pagamentos/cadastro}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Novo Pagamento
+                </a>
+                <a th:href="@{/pagamentos/gerar}" class="btn btn-success ms-2">
+                    <i class="bi bi-file-earmark-plus"></i> Gerar Pagamentos
+                </a>
+            </div>
+        </div>
+        
+        <div class="card mb-4" th:if="${cota}">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Informações da Cota</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Grupo:</strong> <a th:href="@{/grupos/{id}/detalhes(id=${cota.grupo.id})}" th:text="${cota.grupo.nome}">Grupo Premium</a></p>
+                        <p><strong>Número da Cota:</strong> <span th:text="${cota.numero}">123</span></p>
+                        <p><strong>Cliente:</strong> <a th:href="@{/clientes/{id}/detalhes(id=${cota.cliente.id})}" th:text="${cota.cliente.nome}">João Silva</a></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Valor da Parcela:</strong> <span th:text="${#numbers.formatCurrency(cota.valorParcela)}">R$ 500,00</span></p>
+                        <p><strong>Status:</strong> 
+                            <span th:if="${cota.status.name() == 'ATIVA'}" class="badge bg-success">Ativa</span>
+                            <span th:if="${cota.status.name() == 'INATIVA'}" class="badge bg-secondary">Inativa</span>
+                            <span th:if="${cota.status.name() == 'CONTEMPLADA'}" class="badge bg-primary">Contemplada</span>
+                        </p>
+                        <p><strong>Data de Cadastro:</strong> <span th:text="${#temporals.format(cota.dataCadastro, 'dd/MM/yyyy')}">01/01/2023</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4" th:unless="${cota}">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Filtros</h5>
+            </div>
+            <div class="card-body">
+                <form th:action="@{/pagamentos}" method="get" class="row">
+                    <div class="col-md-3 mb-3">
+                        <label for="cliente" class="form-label">Cliente</label>
+                        <input type="text" id="cliente" name="cliente" class="form-control" 
+                               th:value="${param.cliente != null ? param.cliente[0] : ''}" 
+                               placeholder="Nome do cliente">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="grupo" class="form-label">Grupo</label>
+                        <input type="text" id="grupo" name="grupo" class="form-control" 
+                               th:value="${param.grupo != null ? param.grupo[0] : ''}" 
+                               placeholder="Nome do grupo">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select id="status" name="status" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="PENDENTE" th:selected="${param.status != null && param.status[0] == 'PENDENTE'}">Pendente</option>
+                            <option value="PAGO" th:selected="${param.status != null && param.status[0] == 'PAGO'}">Pago</option>
+                            <option value="ATRASADO" th:selected="${param.status != null && param.status[0] == 'ATRASADO'}">Atrasado</option>
+                            <option value="CANCELADO" th:selected="${param.status != null && param.status[0] == 'CANCELADO'}">Cancelado</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="dataVencimento" class="form-label">Data Vencimento</label>
+                        <input type="date" id="dataVencimento" name="dataVencimento" class="form-control" 
+                               th:value="${param.dataVencimento != null ? param.dataVencimento[0] : ''}" 
+                               placeholder="Data de vencimento">
+                    </div>
+                    <div class="col-12 text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i> Filtrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Lista de Pagamentos</h5>
+            </div>
+            
+            <div class="card-body p-0">
+                <div th:if="${pagamentos.empty}" class="p-4 text-center">
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle"></i> Nenhum pagamento encontrado.
+                    </div>
+                </div>
+                
+                <div class="table-responsive" th:unless="${pagamentos.empty}">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Cota</th>
+                                <th>Grupo</th>
+                                <th>Cliente</th>
+                                <th>Mês Ref.</th>
+                                <th>Vencimento</th>
+                                <th>Valor</th>
+                                <th>Pagamento</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="pagamento : ${pagamentos}">
+                                <td>
+                                    <a th:href="@{/pagamentos/{id}/detalhes(id=${pagamento.id})}" 
+                                       th:text="${pagamento.id}">1</a>
+                                </td>
+                                <td>
+                                    <a th:href="@{/cotas/{id}/detalhes(id=${pagamento.cota.id})}"
+                                       th:text="${pagamento.cota.numero}">123</a>
+                                </td>
+                                <td>
+                                    <a th:href="@{/grupos/{id}/detalhes(id=${pagamento.cota.grupo.id})}"
+                                       th:text="${pagamento.cota.grupo.nome}">Grupo Premium</a>
+                                </td>
+                                <td>
+                                    <a th:href="@{/clientes/{id}/detalhes(id=${pagamento.cota.cliente.id})}"
+                                       th:text="${pagamento.cota.cliente.nome}">João Silva</a>
+                                </td>
+                                <td th:text="${pagamento.mesReferencia}">01/2023</td>
+                                <td th:text="${#temporals.format(pagamento.dataVencimento, 'dd/MM/yyyy')}">10/01/2023</td>
+                                <td th:text="${#numbers.formatCurrency(pagamento.valor)}">R$ 500,00</td>
+                                <td th:text="${pagamento.dataPagamento != null ? #temporals.format(pagamento.dataPagamento, 'dd/MM/yyyy') : '-'}">15/01/2023</td>
+                                <td>
+                                    <span th:if="${pagamento.status.name() == 'PAGO'}" class="badge bg-success">Pago</span>
+                                    <span th:if="${pagamento.status.name() == 'PENDENTE'}" class="badge bg-warning text-dark">Pendente</span>
+                                    <span th:if="${pagamento.status.name() == 'ATRASADO'}" class="badge bg-danger">Atrasado</span>
+                                    <span th:if="${pagamento.status.name() == 'CANCELADO'}" class="badge bg-secondary">Cancelado</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a th:href="@{/pagamentos/{id}/detalhes(id=${pagamento.id})}" 
+                                           class="btn btn-sm btn-info" title="Ver Detalhes">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a th:if="${pagamento.status.name() != 'PAGO' && pagamento.status.name() != 'CANCELADO'}"
+                                           th:href="@{/pagamentos/{id}/registrar(id=${pagamento.id})}" 
+                                           class="btn btn-sm btn-success" title="Registrar Pagamento">
+                                            <i class="bi bi-check-circle"></i>
+                                        </a>
+                                        <a th:if="${pagamento.status.name() == 'PAGO'}"
+                                           th:href="@{/pagamentos/{id}/cancelar(id=${pagamento.id})}" 
+                                           class="btn btn-sm btn-danger" title="Cancelar Pagamento"
+                                           onclick="return confirm('Tem certeza que deseja cancelar este pagamento?')">
+                                            <i class="bi bi-x-circle"></i>
+                                        </a>
+                                        <a th:href="@{/pagamentos/{id}/editar(id=${pagamento.id})}" 
+                                           class="btn btn-sm btn-primary" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a th:if="${pagamento.status.name() != 'PAGO'}"
+                                           th:href="@{/pagamentos/{id}/excluir(id=${pagamento.id})}" 
+                                           class="btn btn-sm btn-danger" title="Excluir"
+                                           onclick="return confirm('Tem certeza que deseja excluir este pagamento?')">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <nav th:if="${pagamentos instanceof T(org.springframework.data.domain.Page) && pagamentos.totalPages > 1}" aria-label="Paginação" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${pagamentos.first ? 'disabled' : ''}">
+                    <a class="page-link" th:href="@{/pagamentos(page=0, size=${pagamentos.size}, cliente=${param.cliente}, grupo=${param.grupo}, status=${param.status}, dataVencimento=${param.dataVencimento})}" aria-label="Primeira">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item" th:classappend="${pagamentos.first ? 'disabled' : ''}">
+                    <a class="page-link" th:href="@{/pagamentos(page=${pagamentos.number - 1}, size=${pagamentos.size}, cliente=${param.cliente}, grupo=${param.grupo}, status=${param.status}, dataVencimento=${param.dataVencimento})}" aria-label="Anterior">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item" th:each="i : ${#numbers.sequence(0, pagamentos.totalPages - 1)}" 
+                    th:classappend="${pagamentos.number == i ? 'active' : ''}">
+                    <a class="page-link" th:href="@{/pagamentos(page=${i}, size=${pagamentos.size}, cliente=${param.cliente}, grupo=${param.grupo}, status=${param.status}, dataVencimento=${param.dataVencimento})}" th:text="${i + 1}">1</a>
+                </li>
+                <li class="page-item" th:classappend="${pagamentos.last ? 'disabled' : ''}">
+                    <a class="page-link" th:href="@{/pagamentos(page=${pagamentos.number + 1}, size=${pagamentos.size}, cliente=${param.cliente}, grupo=${param.grupo}, status=${param.status}, dataVencimento=${param.dataVencimento})}" aria-label="Próxima">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item" th:classappend="${pagamentos.last ? 'disabled' : ''}">
+                    <a class="page-link" th:href="@{/pagamentos(page=${pagamentos.totalPages - 1}, size=${pagamentos.size}, cliente=${param.cliente}, grupo=${param.grupo}, status=${param.status}, dataVencimento=${param.dataVencimento})}" aria-label="Última">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    
+    <footer th:replace="layout :: footer"></footer>
+</body>
+</html> 

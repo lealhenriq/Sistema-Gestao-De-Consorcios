@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head('Gerar Pagamentos - Sistema de Consórcio')"></head>
+<body>
+    <header th:replace="layout :: header"></header>
+    
+    <div class="container py-4">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/dashboard}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/pagamentos}">Pagamentos</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Gerar Pagamentos</li>
+            </ol>
+        </nav>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Gerar Pagamentos</h5>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/pagamentos/gerar}" method="post">
+                            <div class="alert alert-info mb-4">
+                                <i class="bi bi-info-circle"></i> Essa funcionalidade gera pagamentos para todas as cotas ativas de um grupo para um determinado mês de referência.
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="grupoId" class="form-label">Grupo</label>
+                                <select id="grupoId" name="grupoId" class="form-select" required>
+                                    <option value="">Selecione um grupo</option>
+                                    <option th:each="grupo : ${grupos}" 
+                                            th:value="${grupo.id}" 
+                                            th:text="${grupo.nome + ' - ' + #numbers.formatCurrency(grupo.valorBem)}">
+                                        Nome do Grupo - R$ 50.000,00
+                                    </option>
+                                </select>
+                                <div class="form-text">Apenas grupos com status ATIVO estão disponíveis</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="mesReferencia" class="form-label">Mês de Referência</label>
+                                <input type="text" id="mesReferencia" name="mesReferencia" class="form-control" 
+                                       placeholder="MM/AAAA" pattern="[0-1][0-9]/[0-9]{4}" required>
+                                <div class="form-text">Digite no formato MM/AAAA (ex: 01/2024)</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="dataVencimento" class="form-label">Data de Vencimento</label>
+                                <input type="date" id="dataVencimento" name="dataVencimento" class="form-control" required>
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" id="sobrescrever" name="sobrescrever" class="form-check-input">
+                                <label for="sobrescrever" class="form-check-label">Sobrescrever pagamentos existentes</label>
+                                <div class="form-text">Marque essa opção para substituir pagamentos existentes para o mesmo mês de referência</div>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary" 
+                                        onclick="return confirm('Tem certeza que deseja gerar os pagamentos para o mês selecionado?')">
+                                    <i class="bi bi-plus-circle"></i> Gerar Pagamentos
+                                </button>
+                                <a th:href="@{/pagamentos}" class="btn btn-secondary">
+                                    <i class="bi bi-x-circle"></i> Cancelar
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer th:replace="layout :: footer"></footer>
+</body>
+</html> 

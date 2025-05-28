@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head('Registrar Pagamento - Sistema de Consórcio')"></head>
+<body>
+    <header th:replace="layout :: header"></header>
+    
+    <div class="container py-4">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/dashboard}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/pagamentos}">Pagamentos</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Registrar Pagamento</li>
+            </ol>
+        </nav>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">Registrar Pagamento</h5>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/pagamentos/{id}/registrar(id=${pagamento.id})}" th:object="${pagamento}" method="post">
+                            <div class="alert alert-info mb-4">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="mb-1"><strong>Cliente:</strong> <span th:text="${pagamento.cota.cliente.nome}">Nome do Cliente</span></p>
+                                        <p class="mb-1"><strong>Grupo:</strong> <span th:text="${pagamento.cota.grupo.nome}">Nome do Grupo</span></p>
+                                        <p class="mb-1"><strong>Cota:</strong> <span th:text="${pagamento.cota.numero}">123</span></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="mb-1"><strong>Mês de Referência:</strong> <span th:text="${pagamento.mesReferencia}">01/2024</span></p>
+                                        <p class="mb-1"><strong>Valor:</strong> <span th:text="${#numbers.formatCurrency(pagamento.valor)}">R$ 500,00</span></p>
+                                        <p class="mb-1"><strong>Vencimento:</strong> <span th:text="${#temporals.format(pagamento.dataVencimento, 'dd/MM/yyyy')}">10/01/2024</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="dataPagamento" class="form-label">Data do Pagamento</label>
+                                <input type="date" id="dataPagamento" name="dataPagamento" class="form-control" 
+                                       th:field="*{dataPagamento}" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('dataPagamento')}" th:errors="*{dataPagamento}">
+                                    Data inválida
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="observacao" class="form-label">Observação (opcional)</label>
+                                <textarea id="observacao" name="observacao" class="form-control" 
+                                          th:field="*{observacao}" rows="3"></textarea>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('observacao')}" th:errors="*{observacao}">
+                                    Observação inválida
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="bi bi-check-circle"></i> Confirmar Pagamento
+                                </button>
+                                <a th:href="@{/pagamentos}" class="btn btn-secondary">
+                                    <i class="bi bi-x-circle"></i> Cancelar
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer th:replace="layout :: footer"></footer>
+</body>
+</html> 

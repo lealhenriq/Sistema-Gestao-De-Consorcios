@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head('Sorteios por Período - Sistema de Consórcio')"></head>
+<body>
+    <header th:replace="layout :: header"></header>
+    
+    <div class="container py-4">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/dashboard}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/sorteios}">Sorteios</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Resultado por Período</li>
+            </ol>
+        </nav>
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0">Sorteios no Período</h2>
+            <div>
+                <a th:href="@{/sorteios/periodo}" class="btn btn-secondary">
+                    <i class="bi bi-funnel"></i> Novo Filtro
+                </a>
+                <a th:href="@{/sorteios/cadastro}" class="btn btn-primary ms-2">
+                    <i class="bi bi-plus-circle"></i> Novo Sorteio
+                </a>
+            </div>
+        </div>
+        
+        <div class="alert alert-info mb-4">
+            <p class="mb-0">
+                <strong>Período:</strong> 
+                <span th:text="${#temporals.format(dataInicio, 'dd/MM/yyyy')}">01/01/2024</span> até 
+                <span th:text="${#temporals.format(dataFim, 'dd/MM/yyyy')}">31/01/2024</span>
+            </p>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Lista de Sorteios</h5>
+            </div>
+            
+            <div class="card-body p-0">
+                <div th:if="${sorteios.empty}" class="p-4 text-center">
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle"></i> Nenhum sorteio encontrado no período
+                    </div>
+                </div>
+                
+                <div class="table-responsive" th:unless="${sorteios.empty}">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Grupo</th>
+                                <th>Data do Sorteio</th>
+                                <th>Cota Contemplada</th>
+                                <th>Cliente Contemplado</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="sorteio : ${sorteios}">
+                                <td>
+                                    <a th:href="@{/sorteios/{id}/detalhes(id=${sorteio.id})}" th:text="${sorteio.id}">1</a>
+                                </td>
+                                <td>
+                                    <a th:href="@{/grupos/{id}/detalhes(id=${sorteio.grupo.id})}" th:text="${sorteio.grupo.nome}">Grupo Premium</a>
+                                </td>
+                                <td th:text="${#temporals.format(sorteio.dataSorteio, 'dd/MM/yyyy')}">01/01/2024</td>
+                                <td>
+                                    <a th:if="${sorteio.cotaContemplada != null}" 
+                                       th:href="@{/cotas/{id}/detalhes(id=${sorteio.cotaContemplada.id})}" 
+                                       th:text="${sorteio.cotaContemplada.numero}">001</a>
+                                    <span th:unless="${sorteio.cotaContemplada != null}">-</span>
+                                </td>
+                                <td>
+                                    <a th:if="${sorteio.cotaContemplada != null && sorteio.cotaContemplada.cliente != null}" 
+                                       th:href="@{/clientes/{id}/detalhes(id=${sorteio.cotaContemplada.cliente.id})}" 
+                                       th:text="${sorteio.cotaContemplada.cliente.nome}">João Silva</a>
+                                    <span th:unless="${sorteio.cotaContemplada != null && sorteio.cotaContemplada.cliente != null}">-</span>
+                                </td>
+                                <td>
+                                    <span th:if="${sorteio.realizado}" class="badge bg-success">Realizado</span>
+                                    <span th:unless="${sorteio.realizado}" class="badge bg-warning text-dark">Pendente</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a th:href="@{/sorteios/{id}/detalhes(id=${sorteio.id})}" class="btn btn-sm btn-info" title="Ver Detalhes">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a th:if="${sorteio.dataSorteio.isAfter(#temporals.createNow())}" 
+                                           th:href="@{/sorteios/{id}/editar(id=${sorteio.id})}" 
+                                           class="btn btn-sm btn-success" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a th:if="${sorteio.dataSorteio.isAfter(#temporals.createNow())}" 
+                                           th:href="@{/sorteios/{id}/cancelar(id=${sorteio.id})}" 
+                                           class="btn btn-sm btn-danger" title="Cancelar"
+                                           onclick="return confirm('Tem certeza que deseja cancelar este sorteio?')">
+                                            <i class="bi bi-x-circle"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer th:replace="layout :: footer"></footer>
+</body>
+</html> 

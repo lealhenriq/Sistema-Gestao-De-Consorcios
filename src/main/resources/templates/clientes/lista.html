@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head('Clientes - Sistema de Consórcio')"></head>
+<body>
+    <header th:replace="layout :: header"></header>
+    
+    <div class="container py-4">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/dashboard}">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Clientes</li>
+            </ol>
+        </nav>
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0">Clientes</h2>
+            <a th:href="@{/clientes/cadastro}" class="btn btn-primary">
+                <i class="bi bi-person-plus"></i> Novo Cliente
+            </a>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Filtros</h5>
+            </div>
+            <div class="card-body">
+                <form th:action="@{/clientes}" method="get" class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="nome" class="form-label">Nome</label>
+                        <input type="text" id="nome" name="nome" class="form-control" 
+                               th:value="${param.nome != null ? param.nome[0] : ''}" 
+                               placeholder="Nome do cliente">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="cpf" class="form-label">CPF</label>
+                        <input type="text" id="cpf" name="cpf" class="form-control" 
+                               th:value="${param.cpf != null ? param.cpf[0] : ''}" 
+                               placeholder="CPF do cliente">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="text" id="email" name="email" class="form-control" 
+                               th:value="${param.email != null ? param.email[0] : ''}" 
+                               placeholder="Email do cliente">
+                    </div>
+                    <div class="col-12 text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i> Filtrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Lista de Clientes</h5>
+            </div>
+            
+            <div class="card-body p-0">
+                <div th:if="${clientes.empty}" class="p-4 text-center">
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle"></i> Nenhum cliente cadastrado
+                    </div>
+                </div>
+                
+                <div class="table-responsive" th:unless="${clientes.empty}">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>CPF</th>
+                                <th>Telefone</th>
+                                <th>Email</th>
+                                <th>Cotas</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="cliente : ${clientes}">
+                                <td>
+                                    <a th:href="@{/clientes/{id}/detalhes(id=${cliente.id})}" th:text="${cliente.id}">1</a>
+                                </td>
+                                <td>
+                                    <a th:href="@{/clientes/{id}/detalhes(id=${cliente.id})}" th:text="${cliente.nome}">Nome do Cliente</a>
+                                </td>
+                                <td th:text="${cliente.cpf}">CPF</td>
+                                <td th:text="${cliente.telefone}">Telefone</td>
+                                <td th:text="${cliente.email}">Email</td>
+                                <td>
+                                    <a th:href="@{/cotas/cliente/{clienteId}(clienteId=${cliente.id})}" th:text="${cliente.cotas.size()}">0</a>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a th:href="@{/clientes/{id}/detalhes(id=${cliente.id})}" class="btn btn-sm btn-info" title="Detalhes">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a th:href="@{/clientes/{id}/editar(id=${cliente.id})}" class="btn btn-sm btn-success" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a th:href="@{/clientes/{id}/excluir(id=${cliente.id})}" 
+                                           class="btn btn-sm btn-danger" 
+                                           title="Excluir"
+                                           onclick="return confirm('Tem certeza que deseja excluir este cliente?')">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <nav th:if="${clientes instanceof T(org.springframework.data.domain.Page) && clientes.totalPages > 1}" aria-label="Paginação" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${clientes.first ? 'disabled' : ''}">
+                    <a class="page-link" th:href="@{/clientes(page=0, size=${clientes.size}, nome=${param.nome}, cpf=${param.cpf}, email=${param.email})}" aria-label="Primeira">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item" th:classappend="${clientes.first ? 'disabled' : ''}">
+                    <a class="page-link" th:href="@{/clientes(page=${clientes.number - 1}, size=${clientes.size}, nome=${param.nome}, cpf=${param.cpf}, email=${param.email})}" aria-label="Anterior">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item" th:each="i : ${#numbers.sequence(0, clientes.totalPages - 1)}" 
+                    th:classappend="${clientes.number == i ? 'active' : ''}">
+                    <a class="page-link" th:href="@{/clientes(page=${i}, size=${clientes.size}, nome=${param.nome}, cpf=${param.cpf}, email=${param.email})}" th:text="${i + 1}">1</a>
+                </li>
+                <li class="page-item" th:classappend="${clientes.last ? 'disabled' : ''}">
+                    <a class="page-link" th:href="@{/clientes(page=${clientes.number + 1}, size=${clientes.size}, nome=${param.nome}, cpf=${param.cpf}, email=${param.email})}" aria-label="Próxima">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item" th:classappend="${clientes.last ? 'disabled' : ''}">
+                    <a class="page-link" th:href="@{/clientes(page=${clientes.totalPages - 1}, size=${clientes.size}, nome=${param.nome}, cpf=${param.cpf}, email=${param.email})}" aria-label="Última">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    
+    <footer th:replace="layout :: footer"></footer>
+</body>
+</html> 

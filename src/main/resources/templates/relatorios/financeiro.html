@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head('Relatório Financeiro - Sistema de Consórcio')">
+</head>
+<body>
+    <header th:replace="layout :: header"></header>
+    
+    <div class="container py-4">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/dashboard}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/relatorios}">Relatórios</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Relatório Financeiro</li>
+            </ol>
+        </nav>
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0">Relatório Financeiro</h2>
+            <div>
+                <a th:href="@{/relatorios}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Voltar
+                </a>
+                <button class="btn btn-primary ms-2" onclick="window.print()">
+                    <i class="bi bi-printer"></i> Imprimir
+                </button>
+            </div>
+        </div>
+        
+        <!-- Filtros -->
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Filtros</h5>
+            </div>
+            <div class="card-body">
+                <form th:action="@{/relatorios/financeiro}" method="get" class="row">
+                    <div class="col-md-5 mb-3">
+                        <label for="periodo" class="form-label">Período</label>
+                        <input type="month" class="form-control" id="periodo" name="periodo" 
+                               th:value="${periodo != null ? periodo.toString() : ''}" 
+                               required>
+                    </div>
+                    <div class="col-md-5 mb-3">
+                        <label for="grupoId" class="form-label">Grupo</label>
+                        <select class="form-select" id="grupoId" name="grupoId">
+                            <option value="">Todos os grupos</option>
+                            <option th:each="grupo : ${grupos}" 
+                                    th:value="${grupo.id}" 
+                                    th:text="${grupo.nome}"
+                                    th:selected="${grupoSelecionado != null && grupoSelecionado.id == grupo.id}">
+                                Nome do Grupo
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> Filtrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Resumo Financeiro -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-uppercase text-muted mb-1">Valor Total Recebido</h6>
+                                <h3 class="mb-0">R$ <span th:text="${estatisticas != null && estatisticas.valorTotalRecebido != null ? #numbers.formatDecimal(estatisticas.valorTotalRecebido, 1, 'POINT', 2, 'COMMA') : '0,00'}">0,00</span></h3>
+                                <p class="text-muted small mb-0">Período: <span th:text="${periodoFormatado}">Maio/2025</span></p>
+                            </div>
+                            <div class="icon-box rounded-circle bg-success bg-opacity-10 p-3">
+                                <i class="bi bi-arrow-down-circle text-success fs-4"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-uppercase text-muted mb-1">Valor Total Pendente</h6>
+                                <h3 class="mb-0">R$ <span th:text="${estatisticas != null && estatisticas.valorTotalPendente != null ? #numbers.formatDecimal(estatisticas.valorTotalPendente, 1, 'POINT', 2, 'COMMA') : '0,00'}">0,00</span></h3>
+                                <p class="text-muted small mb-0">Período: <span th:text="${periodoFormatado}">Maio/2025</span></p>
+                            </div>
+                            <div class="icon-box rounded-circle bg-warning bg-opacity-10 p-3">
+                                <i class="bi bi-hourglass-split text-warning fs-4"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-uppercase text-muted mb-1">Taxa de Adimplência</h6>
+                                <h3 class="mb-0"><span th:text="${estatisticas != null && estatisticas.taxaAdimplencia != null ? #numbers.formatDecimal(estatisticas.taxaAdimplencia, 1, 'POINT', 2, 'COMMA') : '0,00'}">0,00</span>%</h3>
+                                <p class="text-muted small mb-0">Período: <span th:text="${periodoFormatado}">Maio/2025</span></p>
+                            </div>
+                            <div class="icon-box rounded-circle bg-info bg-opacity-10 p-3">
+                                <i class="bi bi-graph-up text-info fs-4"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Gráficos e Estatísticas -->
+        <div class="row mb-4">
+            <!-- Gráfico de Recebimentos -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Histórico de Recebimentos - Últimos 6 meses</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="historicoRecebimentos" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Estatísticas de Pagamentos -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Estatísticas de Pagamentos</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="estatisticasPagamentos" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Detalhamento -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Detalhamento</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped table-hover">
+                    <tbody>
+                        <tr>
+                            <th scope="row" style="width: 40%;">Total de Pagamentos</th>
+                            <td th:text="${estatisticas != null ? estatisticas.totalPagamentos : 0}">0</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Total de Pagamentos Pendentes</th>
+                            <td th:text="${estatisticas != null ? estatisticas.totalPendentes : 0}">0</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Pagamentos Vencidos</th>
+                            <td th:text="${estatisticas != null ? estatisticas.totalVencidos : 0}">0</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Valor Médio por Pagamento</th>
+                            <td>
+                                R$ <span th:text="${estatisticas != null && estatisticas.totalPagamentos > 0 && estatisticas.valorTotalRecebido != null ? #numbers.formatDecimal(estatisticas.valorTotalRecebido / estatisticas.totalPagamentos, 1, 'POINT', 2, 'COMMA') : '0,00'}">0,00</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Grupo</th>
+                            <td th:text="${grupoSelecionado != null ? grupoSelecionado.nome : 'Todos os grupos'}">Todos os grupos</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <footer th:replace="layout :: footer"></footer>
+    
+    <!-- Add Chart.js before our script -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            // Dados para o gráfico de histórico de recebimentos
+            const meses = [];
+            const valores = [];
+            
+            const historicoMensal = /*[[${historicoMensal}]]*/ {};
+            
+            if (historicoMensal) {
+                for (const [mes, valor] of Object.entries(historicoMensal)) {
+                    const [ano, mesNum] = mes.split('-');
+                    const date = new Date(parseInt(ano), parseInt(mesNum) - 1, 1);
+                    meses.push(date.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' }));
+                    valores.push(valor);
+                }
+            }
+            
+            new Chart(document.getElementById('historicoRecebimentos'), {
+                type: 'line',
+                data: {
+                    labels: meses,
+                    datasets: [{
+                        label: 'Valor Recebido (R$)',
+                        data: valores,
+                        backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                        borderColor: 'rgba(13, 110, 253, 0.8)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'R$ ' + value.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Dados para o gráfico de estatísticas de pagamentos
+            const totalPagos = /*[[${estatisticas != null ? estatisticas.totalPagamentos : 0}]]*/ 0;
+            const totalPendentes = /*[[${estatisticas != null ? estatisticas.totalPendentes : 0}]]*/ 0;
+            const totalVencidos = /*[[${estatisticas != null ? estatisticas.totalVencidos : 0}]]*/ 0;
+            
+            new Chart(document.getElementById('estatisticasPagamentos'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pagos', 'Pendentes', 'Vencidos'],
+                    datasets: [{
+                        data: [totalPagos, totalPendentes, totalVencidos],
+                        backgroundColor: [
+                            'rgba(25, 135, 84, 0.7)',
+                            'rgba(255, 193, 7, 0.7)',
+                            'rgba(220, 53, 69, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(25, 135, 84, 1)',
+                            'rgba(255, 193, 7, 1)',
+                            'rgba(220, 53, 69, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

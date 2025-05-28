@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head('Meu Perfil - Sistema de Consórcio')"></head>
+<body>
+    <header th:replace="layout :: header"></header>
+    
+    <div class="container py-4">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/dashboard}">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Meu Perfil</li>
+            </ol>
+        </nav>
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Meu Perfil</h1>
+            <div>
+                <a th:href="@{/perfil/alterar-senha}" class="btn btn-primary">
+                    <i class="bi bi-key"></i> Alterar Senha
+                </a>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Informações do Usuário</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Nome</label>
+                        <p class="form-control-plaintext" th:text="${usuario.nome}">Nome do Usuário</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Email</label>
+                        <p class="form-control-plaintext" th:text="${usuario.email}">email@exemplo.com</p>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Perfil</label>
+                        <p class="form-control-plaintext">
+                            <span th:if="${usuario.role.name() == 'ADMIN'}" class="badge bg-danger">Administrador</span>
+                            <span th:if="${usuario.role.name() == 'OPERADOR'}" class="badge bg-info">Operador</span>
+                            <span th:if="${usuario.role.name() == 'USUARIO'}" class="badge bg-primary">Usuário</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Status</label>
+                        <p class="form-control-plaintext">
+                            <span th:if="${usuario.ativo}" class="badge bg-success">Ativo</span>
+                            <span th:unless="${usuario.ativo}" class="badge bg-secondary">Inativo</span>
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Data de Cadastro</label>
+                        <p class="form-control-plaintext" th:text="${#temporals.format(usuario.dataCadastro, 'dd/MM/yyyy HH:mm')}">01/01/2023</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Última Atualização</label>
+                        <p class="form-control-plaintext" th:text="${#temporals.format(usuario.dataAtualizacao, 'dd/MM/yyyy HH:mm')}">01/01/2023</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer th:replace="layout :: footer"></footer>
+</body>
+</html> 

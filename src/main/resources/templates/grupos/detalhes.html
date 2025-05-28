@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head('Detalhes do Grupo - Sistema de Consórcio')"></head>
+<body>
+    <header th:replace="layout :: header"></header>
+    
+    <div class="container py-4">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/dashboard}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/grupos}">Grupos</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Detalhes</li>
+            </ol>
+        </nav>
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 th:text="${grupo.nome}">Detalhes do Grupo</h1>
+            <div>
+                <a th:if="${grupo.status.name() == 'FORMACAO'}" th:href="@{/grupos/{id}/editar(id=${grupo.id})}" class="btn btn-primary">
+                    <i class="bi bi-pencil"></i> Editar
+                </a>
+                <a th:if="${grupo.status.name() == 'FORMACAO'}" th:href="@{/grupos/{id}/ativar(id=${grupo.id})}" class="btn btn-success"
+                   onclick="return confirm('Tem certeza que deseja ativar este grupo?')">
+                    <i class="bi bi-check-circle"></i> Ativar Grupo
+                </a>
+                <a th:if="${grupo.status.name() == 'ATIVO'}" th:href="@{/grupos/{id}/encerrar(id=${grupo.id})}" class="btn btn-danger"
+                   onclick="return confirm('Tem certeza que deseja encerrar este grupo?')">
+                    <i class="bi bi-x-circle"></i> Encerrar Grupo
+                </a>
+            </div>
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Informações do Grupo</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-bold">ID:</div>
+                            <div class="col-md-8" th:text="${grupo.id}">1</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-bold">Nome:</div>
+                            <div class="col-md-8" th:text="${grupo.nome}">Grupo Premium</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-bold">Tipo:</div>
+                            <div class="col-md-8">
+                                <span class="badge bg-primary">Diversos</span>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-bold">Valor do Bem:</div>
+                            <div class="col-md-8" th:text="${#numbers.formatCurrency(grupo.valorBem)}">R$ 60.000,00</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-bold">Prazo:</div>
+                            <div class="col-md-8" th:text="${grupo.prazoMeses + ' meses'}">60 meses</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-bold">Status:</div>
+                            <div class="col-md-8">
+                                <span th:if="${grupo.status.name() == 'FORMACAO'}" class="badge bg-warning text-dark">Em Formação</span>
+                                <span th:if="${grupo.status.name() == 'ATIVO'}" class="badge bg-success">Ativo</span>
+                                <span th:if="${grupo.status.name() == 'ENCERRADO'}" class="badge bg-secondary">Encerrado</span>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-bold">Data de Início:</div>
+                            <div class="col-md-8" th:text="${#temporals.format(grupo.dataInicio, 'dd/MM/yyyy')}">01/01/2024</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-bold">Data de Término:</div>
+                            <div class="col-md-8" th:text="${#temporals.format(grupo.dataTermino, 'dd/MM/yyyy')}">01/01/2029</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-bold">Data de Cadastro:</div>
+                            <div class="col-md-8" th:text="${#temporals.format(grupo.dataCadastro, 'dd/MM/yyyy')}">01/01/2024</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Resumo de Cotas</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6 fw-bold">Total de Cotas:</div>
+                            <div class="col-md-6" th:text="${grupo.numeroCotas}">50</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6 fw-bold">Cotas Ativas:</div>
+                            <div class="col-md-6" th:text="${cotasAtivas != null ? cotasAtivas : cotas.size()}">40</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6 fw-bold">Cotas Contempladas:</div>
+                            <div class="col-md-6" th:text="${cotasContempladas != null ? cotasContempladas : 0}">5</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6 fw-bold">Cotas Inativas:</div>
+                            <div class="col-md-6" th:text="${cotasInativas != null ? cotasInativas : 0}">5</div>
+                        </div>
+                        <hr>
+                        <div class="d-grid gap-2">
+                            <a th:href="@{/cotas/grupo/{id}(id=${grupo.id})}" class="btn btn-outline-primary">
+                                <i class="bi bi-credit-card"></i> Ver Cotas
+                            </a>
+                            <a th:href="@{/sorteios/grupo/{id}(id=${grupo.id})}" class="btn btn-outline-success">
+                                <i class="bi bi-trophy"></i> Ver Sorteios
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Cotas do Grupo</h5>
+                <a th:if="${grupo.status.name() == 'FORMACAO'}" th:href="@{/cotas/cadastro(grupoId=${grupo.id})}" class="btn btn-sm btn-primary">
+                    <i class="bi bi-plus-circle"></i> Nova Cota
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Número</th>
+                                <th>Cliente</th>
+                                <th>Data de Cadastro</th>
+                                <th>Status</th>
+                                <th>Contemplada</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="cota : ${cotas}">
+                                <td th:text="${cota.numero}">001</td>
+                                <td th:text="${cota.cliente != null ? cota.cliente.nome : 'Não definido'}">Nome do Cliente</td>
+                                <td th:text="${cota.dataCadastro != null ? #temporals.format(cota.dataCadastro, 'dd/MM/yyyy') : '-'}">01/01/2024</td>
+                                <td>
+                                    <span th:if="${cota.status.name() == 'ATIVA'}" class="badge bg-success">Ativa</span>
+                                    <span th:if="${cota.status.name() == 'INATIVA'}" class="badge bg-secondary">Inativa</span>
+                                    <span th:if="${cota.status.name() == 'CONTEMPLADA'}" class="badge bg-primary">Contemplada</span>
+                                </td>
+                                <td>
+                                    <span th:if="${cota.contemplada}" class="badge bg-warning text-dark">Sim</span>
+                                    <span th:unless="${cota.contemplada}" class="badge bg-secondary">Não</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a th:href="@{/cotas/{id}/detalhes(id=${cota.id})}" class="btn btn-sm btn-info">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a th:if="${grupo.status.name() == 'FORMACAO'}" 
+                                           th:href="@{/cotas/{id}/editar(id=${cota.id})}" 
+                                           class="btn btn-sm btn-primary">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${cotas.empty}">
+                                <td colspan="6" class="text-center">Nenhuma cota cadastrada para este grupo</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <nav th:if="${cotas.totalPages > 1}" aria-label="Paginação">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item" th:classappend="${cotas.first ? 'disabled' : ''}">
+                            <a class="page-link" th:href="@{/grupos/{id}/detalhes(id=${grupo.id}, page=0, size=${cotas.size})}" aria-label="Primeira">
+                                <span aria-hidden="true">&laquo;&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item" th:classappend="${cotas.first ? 'disabled' : ''}">
+                            <a class="page-link" th:href="@{/grupos/{id}/detalhes(id=${grupo.id}, page=${cotas.number - 1}, size=${cotas.size})}" aria-label="Anterior">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, cotas.totalPages - 1)}" 
+                            th:classappend="${cotas.number == i ? 'active' : ''}">
+                            <a class="page-link" th:href="@{/grupos/{id}/detalhes(id=${grupo.id}, page=${i}, size=${cotas.size})}" th:text="${i + 1}">1</a>
+                        </li>
+                        <li class="page-item" th:classappend="${cotas.last ? 'disabled' : ''}">
+                            <a class="page-link" th:href="@{/grupos/{id}/detalhes(id=${grupo.id}, page=${cotas.number + 1}, size=${cotas.size})}" aria-label="Próxima">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item" th:classappend="${cotas.last ? 'disabled' : ''}">
+                            <a class="page-link" th:href="@{/grupos/{id}/detalhes(id=${grupo.id}, page=${cotas.totalPages - 1}, size=${cotas.size})}" aria-label="Última">
+                                <span aria-hidden="true">&raquo;&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+    
+    <footer th:replace="layout :: footer"></footer>
+</body>
+</html> 

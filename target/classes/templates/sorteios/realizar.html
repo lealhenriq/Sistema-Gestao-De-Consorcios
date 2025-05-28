@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head('Realizar Sorteio - Sistema de Consórcio')"></head>
+<body>
+    <header th:replace="layout :: header"></header>
+    
+    <div class="container py-4">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/dashboard}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/sorteios}">Sorteios</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Realizar Sorteio</li>
+            </ol>
+        </nav>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Realizar Sorteio</h5>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/sorteios/realizar}" method="post">
+                            <div class="alert alert-info mb-4">
+                                <i class="bi bi-info-circle"></i> Esse formulário permite realizar um novo sorteio para um grupo ativo. O sorteio selecionará automaticamente uma cota não contemplada.
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="grupoId" class="form-label">Grupo</label>
+                                <select id="grupoId" name="grupoId" class="form-select" required>
+                                    <option value="">Selecione um grupo</option>
+                                    <option th:each="grupo : ${grupos}" 
+                                            th:value="${grupo.id}" 
+                                            th:text="${grupo.nome + ' - ' + #numbers.formatCurrency(grupo.valorBem)}">
+                                        Nome do Grupo - R$ 50.000,00
+                                    </option>
+                                </select>
+                                <div class="form-text">Apenas grupos com status ATIVO estão disponíveis</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="mesAno" class="form-label">Mês/Ano</label>
+                                <input type="text" id="mesAno" name="mesAno" class="form-control" 
+                                       placeholder="MM/AAAA" pattern="[0-1][0-9]/[0-9]{4}" required>
+                                <div class="form-text">Digite no formato MM/AAAA (ex: 05/2024)</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="dataSorteio" class="form-label">Data do Sorteio</label>
+                                <input type="date" id="dataSorteio" name="dataSorteio" class="form-control" required>
+                                <div class="form-text">Data em que o sorteio será realizado</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="observacao" class="form-label">Observação (opcional)</label>
+                                <textarea id="observacao" name="observacao" class="form-control" rows="3"></textarea>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary" 
+                                        onclick="return confirm('Tem certeza que deseja realizar o sorteio agora?')">
+                                    <i class="bi bi-trophy"></i> Realizar Sorteio
+                                </button>
+                                <a th:href="@{/sorteios}" class="btn btn-secondary">
+                                    <i class="bi bi-x-circle"></i> Cancelar
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer th:replace="layout :: footer"></footer>
+</body>
+</html> 

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head('Detalhes da Cota - Sistema de Consórcio')"></head>
+<body>
+    <header th:replace="layout :: header"></header>
+    
+    <div class="container py-4">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/dashboard}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/cotas}">Cotas</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Detalhes</li>
+            </ol>
+        </nav>
+        
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Detalhes da Cota</h5>
+                        <div>
+                            <a th:href="@{/cotas/{id}/editar(id=${cota.id})}" class="btn btn-sm btn-light me-2">
+                                <i class="bi bi-pencil"></i> Editar
+                            </a>
+                            <a th:href="@{/cotas/{id}/excluir(id=${cota.id})}" class="btn btn-sm btn-danger"
+                               onclick="return confirm('Tem certeza que deseja excluir esta cota?');">
+                                <i class="bi bi-trash"></i> Excluir
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <h6 class="fw-bold">Número da Cota:</h6>
+                                <p th:text="${cota.numero}">123</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="fw-bold">Status:</h6>
+                                <span th:if="${cota.status.name() == 'ATIVA'}" class="badge bg-success">Ativa</span>
+                                <span th:if="${cota.status.name() == 'INATIVA'}" class="badge bg-secondary">Inativa</span>
+                                <span th:if="${cota.status.name() == 'CONTEMPLADA'}" class="badge bg-primary">Contemplada</span>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <h6 class="fw-bold">Grupo:</h6>
+                                <p>
+                                    <a th:href="@{/grupos/{id}/detalhes(id=${cota.grupo.id})}" 
+                                       th:text="${cota.grupo.nome}">Grupo Premium</a>
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="fw-bold">Cliente:</h6>
+                                <p>
+                                    <a th:href="@{/clientes/{id}/detalhes(id=${cota.cliente.id})}" 
+                                       th:text="${cota.cliente.nome}">João Silva</a>
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <h6 class="fw-bold">Valor da Parcela:</h6>
+                                <p th:text="${#numbers.formatCurrency(cota.valorParcela)}">R$ 500,00</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="fw-bold">Data de Cadastro:</h6>
+                                <p th:text="${#temporals.format(cota.dataCadastro, 'dd/MM/yyyy HH:mm')}">01/01/2023 14:30</p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-center mt-4" th:if="${cota.status.name() == 'ATIVA' && !cota.contemplada}">
+                            <a th:href="@{/cotas/{id}/inativar(id=${cota.id})}" class="btn btn-warning me-2"
+                               onclick="return confirm('Tem certeza que deseja inativar esta cota?');">
+                                <i class="bi bi-pause-circle"></i> Inativar Cota
+                            </a>
+                            <a th:href="@{/cotas/{id}/contemplar(id=${cota.id})}" class="btn btn-success"
+                               onclick="return confirm('Tem certeza que deseja marcar esta cota como contemplada?');">
+                                <i class="bi bi-trophy"></i> Marcar como Contemplada
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Histórico de Pagamentos -->
+                <div class="card">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Histórico de Pagamentos</h5>
+                        <a th:href="@{/pagamentos/cadastro(cotaId=${cota.id})}" class="btn btn-sm btn-light">
+                            <i class="bi bi-plus-circle"></i> Registrar Pagamento
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Mês Ref.</th>
+                                        <th>Valor</th>
+                                        <th>Data Vencimento</th>
+                                        <th>Status</th>
+                                        <th>Data Pagamento</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:if="${pagamentos.empty}">
+                                        <td colspan="6" class="text-center">Nenhum pagamento registrado</td>
+                                    </tr>
+                                    <tr th:each="pagamento : ${pagamentos}">
+                                        <td th:text="${pagamento.mesReferencia}">05/2023</td>
+                                        <td th:text="${#numbers.formatCurrency(pagamento.valor)}">R$ 500,00</td>
+                                        <td th:text="${#temporals.format(pagamento.dataVencimento, 'dd/MM/yyyy')}">15/05/2023</td>
+                                        <td>
+                                            <span th:if="${pagamento.status.name() == 'PAGO'}" class="badge bg-success">Pago</span>
+                                            <span th:if="${pagamento.status.name() == 'PENDENTE'}" class="badge bg-warning text-dark">Pendente</span>
+                                            <span th:if="${pagamento.status.name() == 'ATRASADO'}" class="badge bg-danger">Atrasado</span>
+                                            <span th:if="${pagamento.status.name() == 'CANCELADO'}" class="badge bg-secondary">Cancelado</span>
+                                        </td>
+                                        <td th:text="${pagamento.dataPagamento != null ? #temporals.format(pagamento.dataPagamento, 'dd/MM/yyyy') : '-'}">
+                                            18/05/2023
+                                        </td>
+                                        <td>
+                                            <a th:if="${pagamento.status.name() == 'PENDENTE' || pagamento.status.name() == 'ATRASADO'}" 
+                                               th:href="@{/pagamentos/{id}/registrar(id=${pagamento.id})}" 
+                                               class="btn btn-sm btn-success me-1" title="Registrar Pagamento">
+                                                <i class="bi bi-check-circle"></i>
+                                            </a>
+                                            <a th:if="${pagamento.status.name() == 'PAGO'}" 
+                                               th:href="@{/pagamentos/{id}/cancelar(id=${pagamento.id})}" 
+                                               class="btn btn-sm btn-danger me-1" title="Cancelar Pagamento"
+                                               onclick="return confirm('Tem certeza que deseja cancelar este pagamento?')">
+                                                <i class="bi bi-x-circle"></i>
+                                            </a>
+                                            <a th:href="@{/pagamentos/{id}/detalhes(id=${pagamento.id})}" 
+                                               class="btn btn-sm btn-info" title="Ver Detalhes">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- Informações do Grupo -->
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">Informações do Grupo</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Nome:</strong> <span th:text="${cota.grupo.nome}">Grupo Premium</span></p>
+                        <p><strong>Valor do Bem:</strong> <span th:text="${#numbers.formatCurrency(cota.grupo.valorBem)}">R$ 60.000,00</span></p>
+                        <p><strong>Total de Cotas:</strong> <span th:text="${cota.grupo.numeroCotas}">120</span></p>
+                        <p><strong>Prazo:</strong> <span th:text="${cota.grupo.prazoMeses + ' meses'}">60 meses</span></p>
+                        <p><strong>Status:</strong> 
+                            <span th:if="${cota.grupo.status.name() == 'FORMACAO'}" class="badge bg-warning">Em Formação</span>
+                            <span th:if="${cota.grupo.status.name() == 'ATIVO'}" class="badge bg-success">Ativo</span>
+                            <span th:if="${cota.grupo.status.name() == 'ENCERRADO'}" class="badge bg-secondary">Encerrado</span>
+                        </p>
+                        <a th:href="@{/grupos/{id}/detalhes(id=${cota.grupo.id})}" class="btn btn-info mt-2 w-100">
+                            Ver Detalhes do Grupo
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Resumo Financeiro -->
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">Resumo Financeiro</h5>
+                    </div>
+                    <div class="card-body" th:if="${!pagamentos.empty}">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Total de Parcelas:</span>
+                            <span th:text="${cota.grupo.prazoMeses}">60</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Parcelas Pagas:</span>
+                            <span th:text="${#lists.size(pagamentos.?[status.name() == 'PAGO'])}">12</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Parcelas em Atraso:</span>
+                            <span th:text="${#lists.size(pagamentos.?[status.name() == 'ATRASADO'])}">2</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Valor Pago:</span>
+                            <span th:text="${#numbers.formatCurrency(#aggregates.sum(pagamentos.?[status.name() == 'PAGO'], 'valor'))}">R$ 6.000,00</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Valor a Pagar:</span>
+                            <span th:text="${#numbers.formatCurrency(#aggregates.sum(pagamentos.?[status.name() != 'PAGO' && status.name() != 'CANCELADO'], 'valor'))}">R$ 24.000,00</span>
+                        </div>
+                        <div class="progress mt-3">
+                            <div class="progress-bar bg-success" role="progressbar" 
+                                 th:style="'width: ' + ${(#lists.size(pagamentos.?[status.name() == 'PAGO']) * 100 / cota.grupo.prazoMeses)} + '%'" 
+                                 th:attr="aria-valuenow=${#lists.size(pagamentos.?[status.name() == 'PAGO'])}" 
+                                 aria-valuemin="0" th:attr="aria-valuemax=${cota.grupo.prazoMeses}">
+                                <span th:text="${#numbers.formatDecimal(#lists.size(pagamentos.?[status.name() == 'PAGO']) * 100 / cota.grupo.prazoMeses, 1, 1) + '%'}">
+                                    20%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body" th:if="${pagamentos.empty}">
+                        <p class="text-center">Nenhum pagamento registrado</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer th:replace="layout :: footer"></footer>
+</body>
+</html> 

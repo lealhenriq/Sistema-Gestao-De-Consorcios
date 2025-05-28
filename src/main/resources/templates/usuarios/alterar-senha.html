@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head('Alterar Senha - Sistema de Consórcio')"></head>
+<body>
+    <header th:replace="layout :: header"></header>
+    
+    <div class="container py-4">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/dashboard}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/perfil}">Meu Perfil</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Alterar Senha</li>
+            </ol>
+        </nav>
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Alterar Senha</h1>
+            <div>
+                <a th:href="@{/perfil}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Voltar
+                </a>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Nova Senha</h5>
+            </div>
+            <div class="card-body">
+                <form th:action="@{/perfil/alterar-senha}" method="post" class="needs-validation" novalidate>
+                    <div class="mb-3">
+                        <label for="senhaAtual" class="form-label">Senha Atual</label>
+                        <input type="password" class="form-control" id="senhaAtual" name="senhaAtual" required>
+                        <div class="invalid-feedback">
+                            Por favor, informe sua senha atual
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="novaSenha" class="form-label">Nova Senha</label>
+                        <input type="password" class="form-control" id="novaSenha" name="novaSenha" required>
+                        <div class="invalid-feedback">
+                            Por favor, informe uma nova senha
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="confirmaSenha" class="form-label">Confirmar Nova Senha</label>
+                        <input type="password" class="form-control" id="confirmaSenha" name="confirmaSenha" required>
+                        <div class="invalid-feedback">
+                            Por favor, confirme sua nova senha
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a th:href="@{/perfil}" class="btn btn-secondary me-md-2">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <footer th:replace="layout :: footer"></footer>
+    
+    <script>
+        // Validação de formulário Bootstrap
+        (function() {
+            'use strict';
+            
+            var forms = document.querySelectorAll('.needs-validation');
+            
+            Array.prototype.slice.call(forms).forEach(function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    
+                    // Validar se as senhas coincidem
+                    var novaSenha = document.getElementById('novaSenha').value;
+                    var confirmaSenha = document.getElementById('confirmaSenha').value;
+                    
+                    if (novaSenha !== confirmaSenha) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        
+                        document.getElementById('confirmaSenha').setCustomValidity('As senhas não coincidem');
+                    } else {
+                        document.getElementById('confirmaSenha').setCustomValidity('');
+                    }
+                    
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        })();
+    </script>
+</body>
+</html> 
