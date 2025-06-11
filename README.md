@@ -2,7 +2,7 @@ Projeto desenvolvido por Paulo Henrique Leal dos Santos e Tupi Guedes Ribas.
 
 # Sistema de Gestão de Consórcio de Veículos
 
-![Logo do Sistema](https://via.placeholder.com/150x150.png?text=Consorcio+Veiculos)
+
 
 ## Visão Geral
 
